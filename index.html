@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Budi ❤️</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;600;800&family=Great+Vibes&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #0a0a0a;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        .font-romantic {
+            font-family: 'Dancing Script', cursive;
+        }
+        .font-cursive {
+            font-family: 'Great Vibes', cursive;
+        }
+        /* Custom Animations */
+        @keyframes spin-slow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin-slow 25s linear infinite;
+        }
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 8s ease-in-out infinite;
+        }
+        @keyframes caret {
+            50% { border-color: transparent; }
+        }
+        .animate-caret {
+            animation: caret 0.8s step-end infinite;
+        }
+        /* Custom Glassmorphism */
+        .glass-card {
+            background: rgba(23, 23, 23, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        /* Particle & Firefly Styles */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            background: radial-gradient(circle, rgba(244,63,94,0.6) 0%, rgba(244,63,94,0) 70%);
+            border-radius: 50%;
+        }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e11d48;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #be123c;
+        }
+    </style>
+</head>
+<body class="text-white selection:bg-rose-500 selection:text-white">
+
+    <!-- Background Ambience -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div class="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-rose-950/20 blur-[130px] animate-pulse-slow"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-pink-950/20 blur-[150px] animate-pulse-slow" style="animation-delay: 3s;"></div>
+        <div id="fireflies-container" class="absolute inset-0 opacity-40"></div>
+    </div>
+
+    <!-- Music Control Button -->
+    <button id="music-toggle" class="fixed top-6 right-6 z-50 p-4 rounded-full glass-card text-rose-400 hover:scale-110 active:scale-95 transition-all shadow-lg shadow-black/40">
+        <i id="music-icon" class="fas fa-volume-mute text-xl"></i>
+    </button>
+
+    <!-- Background Audio -->
+    <audio id="bg-music" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
+    </audio>
+
+    <!-- SECTION 1 — FULLSCREEN REAL-TIME COUNTDOWN TIMER -->
+    <div id="countdown-screen" class="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 px-4 text-center transition-all duration-1000 ease-in-out">
+        <div class="space-y-8 max-w-2xl z-10">
+            <h2 class="text-rose-400 font-semibold tracking-[0.3em] uppercase text-xs md:text-sm animate-pulse">
+                Something Special Is Coming myLOVE❤️...
+            </h2>
+            
+            <!-- Live Time Grid System -->
+            <div class="grid grid-cols-4 gap-2 md:gap-4 max-w-xl mx-auto text-center">
+                <div class="glass-card p-3 md:p-5 rounded-2xl min-w-[70px] md:min-w-[110px] shadow-[0_0_20px_rgba(244,63,94,0.1)]">
+                    <span id="days" class="text-3xl md:text-5xl font-black font-mono text-white block">00</span>
+                    <span class="text-[9px] md:text-xs uppercase tracking-widest text-neutral-400 font-semibold block mt-1">Days</span>
+                </div>
+                <div class="glass-card p-3 md:p-5 rounded-2xl min-w-[70px] md:min-w-[110px] shadow-[0_0_20px_rgba(244,63,94,0.1)]">
+                    <span id="hours" class="text-3xl md:text-5xl font-black font-mono text-white block">00</span>
+                    <span class="text-[9px] md:text-xs uppercase tracking-widest text-neutral-400 font-semibold block mt-1">Hours</span>
+                </div>
+                <div class="glass-card p-3 md:p-5 rounded-2xl min-w-[70px] md:min-w-[110px] shadow-[0_0_20px_rgba(244,63,94,0.1)]">
+                    <span id="minutes" class="text-3xl md:text-5xl font-black font-mono text-white block">00</span>
+                    <span class="text-[9px] md:text-xs uppercase tracking-widest text-neutral-400 font-semibold block mt-1">Mins</span>
+                </div>
+                <div class="glass-card p-3 md:p-5 rounded-2xl min-w-[70px] md:min-w-[110px] shadow-[0_0_20px_rgba(244,63,94,0.1)]">
+                    <span id="seconds" class="text-3xl md:text-5xl font-black font-mono text-rose-400 block filter drop-shadow-[0_0_10px_rgba(244,63,94,0.4)]">00</span>
+                    <span class="text-[9px] md:text-xs uppercase tracking-widest text-neutral-400 font-semibold block mt-1">Secs</span>
+                </div>
+            </div>
+
+            <p class="text-neutral-400 text-xs md:text-sm max-w-md mx-auto leading-relaxed px-4">
+                Counting down the moments until your special Day. Please unmute the audio using the button in the top corner for the best cinematic experience.
+            </p>
+            <button id="activate-audio-btn" class="mt-2 px-6 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-medium text-xs tracking-wider shadow-lg shadow-rose-500/20 transition-all uppercase">
+                <i class="fas fa-music mr-2"></i> Enable Sound
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN EXPERIENTIAL LAYOUT (Initially hidden/blurry) -->
+    <div id="main-content" class="relative z-10 hidden opacity-0 transition-all duration-1000">
+        
+        <!-- SECTION 2 — MAIN BIRTHDAY HERO SCREEN -->
+        <section class="relative min-h-screen w-full flex items-center justify-center px-4 pt-16 pb-24 lg:py-0 overflow-hidden">
+            
+            <!-- Low Opacity Floating Quotes in Background -->
+            <div class="absolute inset-0 pointer-events-none opacity-[0.06] font-romantic font-bold text-2xl md:text-5xl select-none z-0">
+                <div class="absolute top-[15%] left-[5%] rotate-[-12deg] animate-pulse">Happy Birthday Kritika.</div>
+                <div class="absolute top-[65%] left-[8%] rotate-[8deg]">You Are My Happiness.</div>
+                <div class="absolute top-[25%] right-[5%] rotate-[15deg]">Forever With You.</div>
+                <div class="absolute top-[75%] right-[10%] rotate-[-5deg] animate-pulse">My Favorite Person.</div>
+                <div class="absolute top-[45%] left-[70%] rotate-[-8deg]">Every Moment With You Is Special.</div>
+            </div>
+
+            <!-- Floating Media Containers (Desktop-focused aesthetic) -->
+            <div class="absolute inset-0 pointer-events-none z-5 hidden lg:block select-none">
+                <!-- Frame 1 -->
+                <div class="absolute rounded-2xl border border-white/10 shadow-2xl p-2 glass-card w-44 h-56 transition-all duration-700 hover:scale-105" style="top: 15%; left: 8%; transform: rotate(-4deg); animation: float-slow 7s ease-in-out infinite alternate;">
+                    <img src="firsthand.jpeg" class="w-full h-full object-cover rounded-xl filter grayscale contrast-125 opacity-60 hover:opacity-100 transition-opacity" alt="Memory Frame">
+                </div>
+                <!-- Frame 2 -->
+                <div class="absolute rounded-2xl border border-white/10 shadow-2xl p-2 glass-card w-44 h-56 transition-all duration-700 hover:scale-105" style="bottom: 15%; left: 12%; transform: rotate(6deg); animation: float-slow 9s ease-in-out infinite alternate-reverse;">
+                    <img src="pipalbote.jpeg" class="w-full h-full object-cover rounded-xl filter grayscale contrast-125 opacity-60 hover:opacity-100 transition-opacity" alt="Memory Frame">
+                </div>
+                <!-- Frame 3 -->
+                <div class="absolute rounded-2xl border border-white/10 shadow-2xl p-2 glass-card w-44 h-56 transition-all duration-700 hover:scale-105" style="top: 20%; right: 10%; transform: rotate(5deg); animation: float-slow 8s ease-in-out infinite alternate;">
+                    <img src="first night.jpeg" class="w-full h-full object-cover rounded-xl filter grayscale contrast-125 opacity-60 hover:opacity-100 transition-opacity" alt="Memory Frame">
+                </div>
+                <!-- Frame 4 -->
+                <div class="absolute rounded-2xl border border-white/10 shadow-2xl p-2 glass-card w-44 h-56 transition-all duration-700 hover:scale-105" style="bottom: 20%; right: 8%; transform: rotate(-6deg); animation: float-slow 10s ease-in-out infinite alternate-reverse;">
+                    <img src="fikkal.jpeg" class="w-full h-full object-cover rounded-xl filter grayscale contrast-125 opacity-60 hover:opacity-100 transition-opacity" alt="Memory Frame">
+                </div>
+            </div>
+
+            <!-- CENTER OVERLAY DIVISION -->
+            <div class="relative z-20 max-w-md w-full rounded-3xl p-8 glass-card border border-white/10 shadow-[0_0_50px_rgba(244,63,94,0.15)] text-center space-y-6 transition-all duration-500 hover:shadow-[0_0_60px_rgba(244,63,94,0.25)]">
+                
+                <!-- Circular Image Frame with Aura -->
+                <div class="relative mx-auto w-48 h-48 md:w-52 md:h-52 rounded-full p-1.5 bg-gradient-to-tr from-rose-500 via-pink-500 to-amber-400 animate-spin-slow shadow-[0_0_35px_rgba(244,63,94,0.4)]">
+                    <div class="w-full h-full rounded-full overflow-hidden bg-neutral-950">
+                        <img src="try to kiss.jpeg" alt="Kritika Ghimire" class="w-full h-full object-cover scale-105 transition-transform duration-700 hover:scale-110">
+                    </div>
+                    <div class="absolute -top-1 -right-1 text-2xl animate-bounce" style="animation-duration: 3s;">👑</div>
+                </div>
+
+                <!-- Headings -->
+                <div class="space-y-3">
+                    <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-white via-rose-100 to-pink-300">
+                            Happy Birthday My Love
+                        </span> ❤️
+                    </h1>
+                    
+                    <!-- Typewriter Element Wrapper -->
+                    <div class="h-6 flex items-center justify-center">
+                        <p id="typewriter" class="text-rose-400 font-medium text-sm md:text-base border-r-2 border-rose-400 pr-1 animate-caret">
+                            <!-- Injected via JavaScript -->
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Interactive Aesthetic Accents -->
+                <div class="flex justify-center items-center gap-6 pt-2 text-rose-400/80">
+                    <div class="flex flex-col items-center gap-1 group">
+                        <div class="relative">
+                            <i class="fas fa-fire text-amber-400 absolute -top-3 left-1/2 -translate-x-1/2 text-xs animate-pulse"></i>
+                            <i class="fas fa-birthday-cake text-2xl transition-transform group-hover:scale-110"></i>
+                        </div>
+                        <span class="text-[9px] uppercase tracking-widest text-neutral-400">Make a Wish</span>
+                    </div>
+                </div>
+
+                <!-- Glowing CTA Button -->
+                <div class="pt-2">
+                    <a href="#timeline-section" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-rose-600 to-pink-600 text-white font-semibold text-xs tracking-wider uppercase shadow-lg shadow-rose-950/40 transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(244,63,94,0.4)] active:scale-98 group">
+                        Scroll To Our Memories
+                        <i class="fas fa-chevron-down text-xs transition-transform group-hover:translate-y-0.5"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3 — MEMORIES TIMELINE PAGE -->
+        <section id="timeline-section" class="relative py-32 px-4 max-w-4xl mx-auto">
+            
+            <!-- Header Text blocks -->
+            <div class="text-center mb-24 space-y-3">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] font-bold tracking-widest uppercase">
+                    <i class="fas fa-history text-xs"></i> Our Relationship Journey
+                </div>
+                <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight">
+                    5 Years of Beautiful Memories
+                </h2>
+                <p class="text-neutral-400 text-xs md:text-sm max-w-sm mx-auto leading-relaxed">
+                    An emotional our story timeline crafted beautifully through deep time.
+                </p>
+            </div>
+
+            <!-- Center Track Spine (Desktop Only) -->
+            <div class="absolute left-1/2 transform -translate-x-1/2 top-[350px] bottom-[200px] w-0.5 bg-gradient-to-b from-rose-500/40 via-pink-500/10 to-transparent hidden md:block"></div>
+
+            <!-- Timeline Cards Loop Layout Container -->
+            <div class="space-y-16 relative">
+                <!-- 2019 -->
+                <div class="timeline-row flex flex-col md:flex-row items-center w-full opacity-0 transform translate-y-10 transition-all duration-1000 ease-out">
+                    <div class="w-full md:w-1/2"></div>
+                    <div class="my-4 md:my-0 z-10 flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-full glass-card border border-rose-500/50 flex items-center justify-center text-xs font-bold text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.3)]">2019</div>
+                    </div>
+                    <div class="w-full md:w-1/2 px-0 md:px-8">
+                        <div class="p-6 md:p-8 rounded-2xl glass-card hover:border-rose-500/30 transition-all duration-300 group">
+                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-rose-400 transition-colors">The Beginning of Our Story ❤️</h3>
+                            <p class="text-neutral-400 text-xs md:text-sm leading-relaxed">That endless late-night typing, muted video calls and knowing instantly deep down inside that you were completely distinct from the rest of the world.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2020 -->
+                <div class="timeline-row flex flex-col md:flex-row-reverse items-center w-full opacity-0 transform translate-y-10 transition-all duration-1000 ease-out">
+                    <div class="w-full md:w-1/2"></div>
+                    <div class="my-4 md:my-0 z-10 flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-full glass-card border border-rose-500/50 flex items-center justify-center text-xs font-bold text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.3)]">2021</div>
+                    </div>
+                    <div class="w-full md:w-1/2 px-0 md:px-8">
+                        <div class="p-6 md:p-8 rounded-2xl glass-card hover:border-rose-500/30 transition-all duration-300 group">
+                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-rose-400 transition-colors">Endless Chats & Memories</h3>
+                            <p class="text-neutral-400 text-xs md:text-sm leading-relaxed">Planning to meet at Setidevi Mandir, Ignoring issues for first meet at my home, Lying family for Our First night stay in Pipalbote, New Home for planning our boundless future maps together.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2021 -->
+                <div class="timeline-row flex flex-col md:flex-row items-center w-full opacity-0 transform translate-y-10 transition-all duration-1000 ease-out">
+                    <div class="w-full md:w-1/2"></div>
+                    <div class="my-4 md:my-0 z-10 flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-full glass-card border border-rose-500/50 flex items-center justify-center text-xs font-bold text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.3)]">2022</div>
+                    </div>
+                    <div class="w-full md:w-1/2 px-0 md:px-8">
+                        <div class="p-6 md:p-8 rounded-2xl glass-card hover:border-rose-500/30 transition-all duration-300 group">
+                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-rose-400 transition-colors">Growing Together Stronger</h3>
+                            <p class="text-neutral-400 text-xs md:text-sm leading-relaxed">Guiding You, Supporting each other's career dreams, overcoming real-world obstacles hand in hand and building an unbreakable relationship.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2022 -->
+                <div class="timeline-row flex flex-col md:flex-row-reverse items-center w-full opacity-0 transform translate-y-10 transition-all duration-1000 ease-out">
+                    <div class="w-full md:w-1/2"></div>
+                    <div class="my-4 md:my-0 z-10 flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-full glass-card border border-rose-500/50 flex items-center justify-center text-xs font-bold text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.3)]">2023</div>
+                    </div>
+                    <div class="w-full md:w-1/2 px-0 md:px-8">
+                        <div class="p-6 md:p-8 rounded-2xl glass-card hover:border-rose-500/30 transition-all duration-300 group">
+                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-rose-400 transition-colors">Dates, Laughs, Plays & Adventures</h3>
+                            <p class="text-neutral-400 text-xs md:text-sm leading-relaxed">Every simple day turned into a premium cinematic book chapter spending sitting right beside you. Eating food and Travelling different places.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2023 -->
+                <div class="timeline-row flex flex-col md:flex-row items-center w-full opacity-0 transform translate-y-10 transition-all duration-1000 ease-out">
+                    <div class="w-full md:w-1/2"></div>
+                    <div class="my-4 md:my-0 z-10 flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-full glass-card border border-rose-500/50 flex items-center justify-center text-xs font-bold text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.3)]">2024</div>
+                    </div>
+                    <div class="w-full md:w-1/2 px-0 md:px-8">
+                        <div class="p-6 md:p-8 rounded-2xl glass-card hover:border-rose-500/30 transition-all duration-300 group">
+                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-rose-400 transition-colors">U-Turn of Life as Long Distance Relationship</h3>
+                            <p class="text-neutral-400 text-xs md:text-sm leading-relaxed">Fighting but Holding hands much tighter during low seasons, sharing deep vulnerabilities, understanding real commitment and celebrating each victory as one unified team.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2024 -->
+                <div class="timeline-row flex flex-col md:flex-row-reverse items-center w-full opacity-0 transform translate-y-10 transition-all duration-1000 ease-out">
+                    <div class="w-full md:w-1/2"></div>
+                    <div class="my-4 md:my-0 z-10 flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-full glass-card border border-rose-500/50 flex items-center justify-center text-xs font-bold text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.3)]">2025</div>
+                    </div>
+                    <div class="w-full md:w-1/2 px-0 md:px-8">
+                        <div class="p-6 md:p-8 rounded-2xl glass-card hover:border-rose-500/30 transition-all duration-300 group">
+                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-rose-400 transition-colors">Still Choosing You Every Day</h3>
+                            <p class="text-neutral-400 text-xs md:text-sm leading-relaxed">No second-guessing or hesitation. Through every changing human season, mood swing and life shift, you remained my unchanging center of gravity.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2025 -->
+                <div class="timeline-row flex flex-col md:flex-row items-center w-full opacity-0 transform translate-y-10 transition-all duration-1000 ease-out">
+                    <div class="w-full md:w-1/2"></div>
+                    <div class="my-4 md:my-0 z-10 flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-full glass-card border border-rose-500/50 flex items-center justify-center text-xs font-bold text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.3)]">2026</div>
+                    </div>
+                    <div class="w-full md:w-1/2 px-0 md:px-8">
+                        <div class="p-6 md:p-8 rounded-2xl glass-card hover:border-rose-500/30 transition-all duration-300 group">
+                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-rose-400 transition-colors">Forever Feels Beautiful</h3>
+                            <p class="text-neutral-400 text-xs md:text-sm leading-relaxed">Looking forward into the future, guiding and realizing clearly that every single path I want to cross forward features your warm smile safely wrapped inside me.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4 — FINAL WISH PAGE -->
+        <section class="relative min-h-screen flex flex-col items-center justify-center px-4 py-24 text-center overflow-hidden">
+            <div class="max-w-2xl space-y-8 z-10">
+                <div class="inline-block animate-bounce" style="animation-duration: 2.5s;">
+                    <i class="fas fa-heart text-rose-500 text-5xl filter drop-shadow-[0_0_15px_rgba(244,63,94,0.7)]"></i>
+                </div>
+
+                <div class="space-y-2">
+                    <p>
+                        <img src="sallaghari.jpeg" class="w-full h-full object-cover rounded-xl filter grayscale contrast-125 opacity-60 hover:opacity-100 transition-opacity" alt="Memory Frame">
+                    </p>
+                    <h4 class="text-neutral-400 tracking-[0.25em] uppercase text-[10px] md:text-xs font-bold">
+                        Wish From Your Evrything, Er. Bibek Chandra Paudyal ❤️
+                    </h4>
+
+                    <h2 class="text-4xl md:text-6xl font-black tracking-tight text-white">
+                        Happy Birthday <br>
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-rose-400 via-pink-400 to-amber-300 font-romantic py-2 inline-block">
+                            Kritika Ghimire soon Paudyal.
+                        </span>
+                    </h2>
+                </div>
+
+                <div class="p-6 md:p-8 rounded-3xl glass-card border border-white/5 max-w-xl mx-auto shadow-2xl relative">
+                    <p class="text-neutral-200 font-medium italic text-sm md:text-lg leading-relaxed">
+                        "No matter where life takes us, you will always remain the most beautiful part of my story. Thank you for every smile, every memory and every moment. Happy Birthday maya, my love ❤️ sweeties person of my life."
+                    </p>
+                </div>
+
+                <div class="pt-4 flex justify-center gap-3 text-rose-500/30 text-xs">
+                    <span>✨</span><span>🎂</span><span>✨</span><span>🎂</span><span>✨</span>
+                </div>
+            </div>
+
+            <!-- Footer block -->
+            <footer class="absolute bottom-8 text-[9px] tracking-[0.3em] text-neutral-500 uppercase">
+                Made With Endless Love For You, Budi ❤️
+            </footer>
+        </section>
+    </div>
+
+    <!-- MAIN CORE JAVASCRIPT LOGIC -->
+    <script>
+        // DOM Elements
+        const countdownScreen = document.getElementById('countdown-screen');
+        const mainContent = document.getElementById('main-content');
+        const audioBtn = document.getElementById('activate-audio-btn');
+        const musicToggle = document.getElementById('music-toggle');
+        const musicIcon = document.getElementById('music-icon');
+        const bgMusic = document.getElementById('bg-music');
+        const typewriterEl = document.getElementById('typewriter');
+        const timelineRows = document.querySelectorAll('.timeline-row');
+
+        // Countdown Grid Elements
+        const dDisplay = document.getElementById('days');
+        const hDisplay = document.getElementById('hours');
+        const mDisplay = document.getElementById('minutes');
+        const sDisplay = document.getElementById('seconds');
+
+        // Audio System State
+        let isMuted = true;
+
+        function toggleAudio() {
+            if (isMuted) {
+                bgMusic.play().then(() => {
+                    isMuted = false;
+                    musicIcon.className = "fas fa-volume-up text-xl text-rose-400 animate-pulse";
+                }).catch(e => console.log("Audio playback delayed by browser engine rules."));
+            } else {
+                bgMusic.pause();
+                isMuted = true;
+                musicIcon.className = "fas fa-volume-mute text-xl text-rose-400";
+            }
+        }
+
+        audioBtn.addEventListener('click', toggleAudio);
+        musicToggle.addEventListener('click', toggleAudio);
+
+        // TARGET TIME CONFIGURATION (May 22, 00:00 local browser time)
+        const targetDate = new Date("May 22, 2026 00:00:00").getTime();
+
+        const countdownInterval = setInterval(() => {
+            const now = new Date().getTime();
+            const difference = targetDate - now;
+
+            // Time math transformations
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+            // Injected layout variables formatting strings
+            dDisplay.textContent = days < 10 ? '0' + days : days;
+            hDisplay.textContent = hours < 10 ? '0' + hours : hours;
+            mDisplay.textContent = minutes < 10 ? '0' + minutes : minutes;
+            sDisplay.textContent = seconds < 10 ? '0' + seconds : seconds;
+
+            //When countdown reaches completion or is already passed
+            if (difference <= 0) {
+                clearInterval(countdownInterval);
+                revealBirthdayExperience();
+            }
+        }, 1000); 
+
+        // Transition Screen Trigger
+        function revealBirthdayExperience() {
+            countdownScreen.style.opacity = '0';
+            countdownScreen.style.transform = 'scale(1.05) filter(blur(10px))';
+            
+            setTimeout(() => {
+                countdownScreen.style.display = 'none';
+                mainContent.classList.remove('hidden');
+                
+                // Allow CSS display calculation pass before opacity trigger
+                setTimeout(() => {
+                    mainContent.style.opacity = '1';
+                    // Trigger dynamic birthday splash
+                    triggerBirthdayConfetti();
+                    // Initialize background fireflies
+                    createFireflies();
+                    // Start typewriter sequence loops
+                    startTypewriter();
+                }, 50);
+            }, 1000);
+        }
+
+        // Canvas Confetti Celebratory Burst Explosion
+        function triggerBirthdayConfetti() {
+            const end = Date.now() + (4 * 1000);
+            const colors = ['#f43f5e', '#ec4899', '#f43f5e', '#fbbf24'];
+
+            (function frame() {
+                confetti({
+                    particleCount: 3,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: colors
+                });
+                confetti({
+                    particleCount: 3,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: colors
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+
+        // Typewriter String Array Sequence System
+        const typingLines = [
+            "You make my world beautiful...",
+            "Every heartbeat remembers you...",
+            "Thank you for being in my life...",
+            "6 years of beautiful memories...",
+            "You are my forever person..."
+        ];
+        let lineIdx = 0;
+        let charIdx = 0;
+        let currentText = "";
+
+        function startTypewriter() {
+            if (charIdx < typingLines[lineIdx].length) {
+                currentText += typingLines[lineIdx].charAt(charIdx);
+                typewriterEl.textContent = currentText;
+                charIdx++;
+                setTimeout(startTypewriter, 75);
+            } else {
+                setTimeout(() => {
+                    // Reset text variables
+                    currentText = "";
+                    charIdx = 0;
+                    lineIdx = (lineIdx + 1) % typingLines.length;
+                    setTimeout(startTypewriter, 400);
+                }, 2500);
+            }
+        }
+
+        // Ambient Fireflies & Stars Generator
+        function createFireflies() {
+            const container = document.getElementById('fireflies-container');
+            const count = 35;
+            for(let i=0; i<count; i++) {
+                const fly = document.createElement('div');
+                fly.className = 'particle';
+                const size = Math.random() * 4 + 2;
+                fly.style.width = `${size}px`;
+                fly.style.height = `${size}px`;
+                fly.style.left = `${Math.random() * 100}%`;
+                fly.style.top = `${Math.random() * 100}%`;
+                
+                fly.animate([
+                    { transform: 'translate(0, 0) opacity(0.2)' },
+                    { transform: `translate(${Math.random()*80 - 40}px, ${Math.random()*80 - 40}px) opacity(0.8)` },
+                    { transform: 'translate(0, 0) opacity(0.2)' }
+                ], {
+                    duration: Math.random() * 6000 + 4000,
+                    iterations: Infinity,
+                    ease: 'ease-in-out'
+                });
+                container.appendChild(fly);
+            }
+        }
+
+        // Scroll Reveal Animation Hook Engine
+        window.addEventListener('scroll', checkTimelineReveal);
+        function checkTimelineReveal() {
+            const triggerBottom = window.innerHeight * 0.85;
+            timelineRows.forEach(row => {
+                const rowTop = row.getBoundingClientRect().top;
+                if(rowTop < triggerBottom) {
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
